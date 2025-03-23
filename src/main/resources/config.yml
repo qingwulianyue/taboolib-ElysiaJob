@@ -1,0 +1,13 @@
+debug: true
+prefix: "§6[职业系统]"
+save_timer: 300.0
+save_tips: true
+default_mana: 100.0
+default_mana_regen: 5.0
+default_stamina: 90.0
+default_stamina_regen: 2.0
+message:
+  onCooldown: "§c技能 %name% 正在冷却中！剩余 %cooldown% 秒！"
+  onManaNotEnough: "§c你没有足够的魔力！还需要 %mana% 点魔力！"
+  onStaminaNotEnough: "§c你没有足够的体力！还需要 %stamina% 点体力！"
+  onCast: "§a你使用了技能 %name%！"
