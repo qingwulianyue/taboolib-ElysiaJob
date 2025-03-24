@@ -3,5 +3,5 @@
   mana: 10
   stamina: 10
   cooldown: 10
-  action: |-
+  action: |
     tell 这是一个示例技能

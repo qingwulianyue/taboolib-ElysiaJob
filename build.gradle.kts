@@ -27,6 +27,7 @@ dependencies {
     compileOnly("ink.ptms.core:v12004:12004:universal")
     compileOnly(kotlin("stdlib"))
     compileOnly(fileTree("libs"))
+    compileOnly("io.netty:netty-all:5.0.0.Alpha2")
 }
 
 tasks.withType<JavaCompile> {
