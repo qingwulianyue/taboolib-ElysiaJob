@@ -1,6 +1,0 @@
-示例动作:
-  animation: 示例动作
-  duration: 100
-  speed: 1
-  action: |
-    tell 我释放了一个动作

@@ -1,6 +1,7 @@
 package com.elysia.elysiajob.command
 
 import com.elysia.elysiajob.ElysiaJob
+import com.elysia.elysiajob.skill.SkillManager
 import org.bukkit.Bukkit
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
@@ -82,7 +83,7 @@ object CommandManager {
     }
     @CommandBody
     val skill = subCommand {
-        dynamic("cast") {
+        dynamic("type") {
             suggestion<CommandSender>(uncheck = false) { sender, context ->
                 return@suggestion listOf("cast")
             }
@@ -107,8 +108,8 @@ object CommandManager {
                             sender.sendMessage("技能不存在")
                             return@execute
                         }
-                        if (ElysiaJob.skillManager.checkSkillCastCondition(player, id))
-                            ElysiaJob.skillManager.castSkill(player, id)
+                        if (SkillManager.checkSkillCastCondition(player, id))
+                            SkillManager.castSkill(player, id)
                     }
                 }
             }

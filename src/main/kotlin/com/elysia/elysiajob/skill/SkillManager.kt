@@ -7,7 +7,7 @@ import org.bukkit.entity.Player
 import taboolib.module.kether.KetherShell
 import taboolib.module.kether.ScriptOptions
 
-class SkillManager {
+object SkillManager {
     // 检查技能是否可以施法
     fun checkSkillCastCondition(player: Player, skillId: String): Boolean {
         val uuid = player.uniqueId
@@ -33,11 +33,13 @@ class SkillManager {
     // 释放技能
     fun castSkill(player: Player, skillId: String) {
         val uuid = player.uniqueId
-        val skillData = ElysiaJob.skillDataManager.getSkillData(skillId)
+        val skillData = ElysiaJob.skillDataManager.getSkillData(skillId) ?: return
         // 执行技能动作部分
         KetherShell.eval(
-            skillData!!.action,
-            ScriptOptions.new { sender(player) }
+            skillData.action,
+            ScriptOptions.new {
+                sender(player)
+            }
         )
         // 扣除魔力值和体力值，并设置技能施法时间
         ElysiaJob.playerDataManager.takePlayerMana(uuid, skillData.mana)

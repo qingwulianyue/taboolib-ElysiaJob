@@ -19,24 +19,15 @@ object ElysiaJob : Plugin() {
     lateinit var config: ConfigFile
     lateinit var playerDataManager: PlayerDataManager
     lateinit var skillDataManager: SkillDataManager
-    lateinit var animationManager: AnimationManager
-    lateinit var controllerManager: ControllerManager
     lateinit var playerSkillDataManager: PlayerSkillDataManager
-    lateinit var skillManager: SkillManager
 
     // 项目使用TabooLib Start Jar 创建!
     override fun onEnable() {
-        createDefaultFolder()
         playerDataManager = PlayerDataManager()
         skillDataManager = SkillDataManager()
-        animationManager = AnimationManager()
-        controllerManager = ControllerManager()
         playerSkillDataManager = PlayerSkillDataManager()
-        skillManager = SkillManager()
         playerDataManager.load()
         skillDataManager.loadFile()
-        animationManager.loadFile()
-        controllerManager.loadFile()
         FileListener.load()
         submit()
     }
@@ -72,23 +63,5 @@ object ElysiaJob : Plugin() {
         playerDataManager.save()
         if (config.getBoolean("save_tips"))
             info("开始自动保存")
-    }
-    private fun createDefaultFolder() {
-        val animationFolder = getDataFolder().toPath().resolve("dragon").resolve("animation")
-        val controllerFolder = getDataFolder().toPath().resolve("dragon").resolve("controller")
-        if (!Files.exists(animationFolder)) {
-            try {
-                Files.createDirectories(animationFolder)
-            } catch (e: IOException) {
-                throw UncheckedIOException("Failed to create directory.", e)
-            }
-        }
-        if (!Files.exists(controllerFolder)) {
-            try {
-                Files.createDirectories(controllerFolder)
-            } catch (e: IOException) {
-                throw UncheckedIOException("Failed to create directory.", e)
-            }
-        }
     }
 }

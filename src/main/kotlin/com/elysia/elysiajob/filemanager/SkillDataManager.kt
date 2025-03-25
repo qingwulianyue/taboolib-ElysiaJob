@@ -7,7 +7,7 @@ import taboolib.common.platform.function.releaseResourceFile
 import taboolib.module.configuration.Configuration
 
 class SkillDataManager {
-    private val skillData = mutableMapOf<String, SkillData>()
+    private val skillDataMap = mutableMapOf<String, SkillData>()
     private val read = ArrayList<Configuration>()
     fun loadFile(){
         read.clear()
@@ -28,19 +28,20 @@ class SkillDataManager {
         read.forEach {
             it.getKeys(false).forEach(
                 fun(key: String) {
+                    val name = it.getString("$key.name") ?: ""
                     val mana = it.getDouble("$key.mana")
                     val stamina = it.getDouble("$key.stamina")
                     val cooldown = it.getDouble("$key.cooldown")
                     val action = it.getString("$key.action") ?: ""
-                    skillData[key] = SkillData(key, mana, stamina, cooldown, action)
+                    skillDataMap[key] = SkillData(name, mana, stamina, cooldown, action)
                 }
             )
         }
     }
     fun getSkillData(name: String): SkillData? {
-        return skillData[name]
+        return skillDataMap[name]
     }
     fun getSkillIdList(): List<String> {
-        return skillData.keys.toList()
+        return skillDataMap.keys.toList()
     }
 }
