@@ -2,11 +2,15 @@ package com.elysia.elysiajob.filemanager
 
 import com.elysia.elysiajob.ElysiaJob
 import org.bukkit.configuration.file.YamlConfiguration
+import taboolib.common.io.newFolder
 import taboolib.common.platform.function.getDataFolder
+import taboolib.common.platform.function.releaseResourceFile
+import taboolib.module.configuration.Configuration
 import java.io.File
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 
+// 玩家持久化数据管理器
 class PlayerDataManager {
     // 玩家魔力值数据
     private val playerMana = ConcurrentHashMap<UUID, Double>()
@@ -20,6 +24,10 @@ class PlayerDataManager {
     private val playerStaminaRegen = ConcurrentHashMap<UUID, Double>()
     // 玩家最大体力值数据
     private val playerMaxStamina = ConcurrentHashMap<UUID, Double>()
+    // 玩家职业数据
+    private val playerJob = ConcurrentHashMap<UUID, String>()
+    // 配置文件收集
+    private val read = ArrayList<Configuration>()
     // 获取玩家魔力值
     fun getPlayerMana(uuid: UUID): Double {
         return playerMana.computeIfAbsent(uuid) { ElysiaJob.config["default_mana"] as Double }
@@ -44,6 +52,10 @@ class PlayerDataManager {
     fun getPlayerMaxStamina(uuid: UUID): Double {
         return playerMaxStamina.computeIfAbsent(uuid) { ElysiaJob.config["default_stamina"] as Double }
     }
+    // 获取玩家职业
+    fun getPlayerJob(uuid: UUID): String? {
+        return playerJob[uuid]
+    }
     // 设置玩家魔力值
     fun setPlayerMana(uuid: UUID, mana: Double) {
         playerMana[uuid] = mana
@@ -67,6 +79,10 @@ class PlayerDataManager {
     // 设置玩家最大体力值
     fun setPlayerMaxStamina(uuid: UUID, maxStamina: Double) {
         playerMaxStamina[uuid] = maxStamina
+    }
+    // 设置玩家职业
+    fun setPlayerJob(uuid: UUID, job: String) {
+        playerJob[uuid] = job
     }
     // 扣除玩家魔力值
     fun takePlayerMana(uuid: UUID, mana: Double){
@@ -120,6 +136,7 @@ class PlayerDataManager {
             yamlConfiguration.set("max_mana", playerMaxMana[uuid])
             yamlConfiguration.set("stamina_regen", playerStaminaRegen[uuid])
             yamlConfiguration.set("max_stamina", playerMaxStamina[uuid])
+            yamlConfiguration.set("job", playerJob[uuid])
             try {
                 yamlConfiguration.save(playerDataPath.toFile())
             } catch (e: Exception){
@@ -127,31 +144,29 @@ class PlayerDataManager {
             }
         }
     }
-    // 加载玩家数据
-    fun load(){
-        findAllFiles(getDataFolder().toPath().resolve("PlayerData").toFile())
-    }
-    // 寻找所有文件
-    private fun findAllFiles(folder : File){
-        val files = folder.listFiles()
-        if (files != null){
-            for (file in files){
-                if (file.isDirectory){
-                    findAllFiles(file)
-                } else {
-                    val playerDataFolder = File( "${folder}/${file.name}")
-                    val config = YamlConfiguration.loadConfiguration(playerDataFolder)
-                    loadPlayerData(config)
-                }
-            }
+    // 查找玩家数据文件
+    fun loadFile(){
+        read.clear()
+        val file = newFolder(getDataFolder(), "PlayerData", create = false)
+        if (!file.exists()) {
+            file.mkdirs()
         }
+        file.walk()
+            .filter { it.isFile }
+            .forEach {
+                read.add(Configuration.loadFromFile(it))
+            }
+        loadPlayerData()
     }
     // 加载玩家数据
-    private fun loadPlayerData(config : YamlConfiguration){
-        val uuid = UUID.fromString(config.getString("uuid"))
-        playerManaRegen[uuid] = config.getDouble("mana_regen")
-        playerMaxMana[uuid] = config.getDouble("max_mana")
-        playerStaminaRegen[uuid] = config.getDouble("stamina_regen")
-        playerMaxStamina[uuid] = config.getDouble("max_stamina")
+    private fun loadPlayerData(){
+        read.forEach{
+            val uuid = UUID.fromString( it.getString("uuid"))
+            playerManaRegen[uuid] = it.getDouble("mana_regen")
+            playerMaxMana[uuid] = it.getDouble("max_mana")
+            playerStaminaRegen[uuid] = it.getDouble("stamina_regen")
+            playerMaxStamina[uuid] = it.getDouble("max_stamina")
+            playerJob[uuid] = it.getString("job") ?: ""
+        }
     }
 }

@@ -5,7 +5,9 @@ import taboolib.common.platform.function.info
 import taboolib.module.kether.KetherParser
 import taboolib.module.kether.scriptParser
 
+// kether脚本注册器
 object KetherRegister {
+    // 脚本 mm 解析
     @KetherParser(["mm"], shared = true)
     fun parser() = scriptParser {
         MythicMobsKether(it.nextParsedAction(), it.nextParsedAction())

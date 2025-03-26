@@ -16,12 +16,6 @@ taboolib {
         taboolib = "6.2.2"
         coroutines = "1.10.1"
     }
-    description {
-        dependencies {
-            name("MythicMobs")
-        }
-    }
-    relocate("ink.ptms.um", "com.elysia.elysiajob.um")
 }
 
 repositories {
@@ -34,7 +28,6 @@ dependencies {
     compileOnly(kotlin("stdlib"))
     compileOnly(fileTree("libs"))
     compileOnly("io.netty:netty-all:5.0.0.Alpha2")
-    taboo("ink.ptms:um:1.0.1")
 }
 
 tasks.withType<JavaCompile> {

@@ -6,9 +6,13 @@ import taboolib.common.platform.function.getDataFolder
 import taboolib.common.platform.function.releaseResourceFile
 import taboolib.module.configuration.Configuration
 
+// 技能数据管理器
 class SkillDataManager {
+    // 技能数据表
     private val skillDataMap = mutableMapOf<String, SkillData>()
+    // 配置文件收集器
     private val read = ArrayList<Configuration>()
+    // 加载文件
     fun loadFile(){
         read.clear()
         val file = newFolder(getDataFolder(), "skill", create = false)
@@ -24,6 +28,7 @@ class SkillDataManager {
             }
         loadConfiguration()
     }
+    // 加载数据
     private fun loadConfiguration(){
         read.forEach {
             it.getKeys(false).forEach(
@@ -38,9 +43,11 @@ class SkillDataManager {
             )
         }
     }
+    // 获取技能数据
     fun getSkillData(name: String): SkillData? {
         return skillDataMap[name]
     }
+    // 获取技能id列表
     fun getSkillIdList(): List<String> {
         return skillDataMap.keys.toList()
     }

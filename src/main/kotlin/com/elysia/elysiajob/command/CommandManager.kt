@@ -115,6 +115,39 @@ object CommandManager {
             }
         }
     }
+    @CommandBody
+    val job = subCommand {
+        dynamic("type") {
+            suggestion<CommandSender>(uncheck = false) { sender, context ->
+                return@suggestion listOf("set")
+            }
+            dynamic("name"){
+                suggestion<CommandSender>(uncheck = false) { sender, context ->
+                    return@suggestion Bukkit.getOnlinePlayers().map { it.name }
+                }
+                dynamic("id"){
+                    suggestion<CommandSender>(uncheck = false) { sender, context ->
+                        return@suggestion ElysiaJob.jobDataManager.getJobIdList()
+                    }
+                    execute<CommandSender> { sender, context, argument ->
+                        val id = context["id"]
+                        val name = context["name"]
+                        val player = Bukkit.getPlayer(name)
+                        if (player == null) {
+                            sender.sendMessage("玩家不存在")
+                            return@execute
+                        }
+                        val jobData = ElysiaJob.jobDataManager.getJobData(id)
+                        if (jobData == null) {
+                            sender.sendMessage("职业不存在")
+                            return@execute
+                        }
+                        ElysiaJob.playerDataManager.setPlayerJob(player.uniqueId, id)
+                    }
+                }
+            }
+        }
+    }
     private fun manaAdd(player: Player, value: Double){
         if (value == -1.0)
             ElysiaJob.playerDataManager.setPlayerMana(player.uniqueId, ElysiaJob.playerDataManager.getPlayerMaxMana(player.uniqueId))

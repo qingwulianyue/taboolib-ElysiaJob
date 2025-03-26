@@ -1,33 +1,35 @@
 package com.elysia.elysiajob
 
 import com.elysia.elysiajob.filemanager.*
-import com.elysia.elysiajob.player.PlayerSkillDataManager
-import com.elysia.elysiajob.skill.SkillManager
+import com.elysia.elysiajob.listener.ClientListener
+import com.elysia.elysiajob.skill.PlayerSkillDataManager
 import org.bukkit.Bukkit
+import org.bukkit.plugin.java.JavaPlugin
 import taboolib.common.platform.Plugin
 import taboolib.common.platform.Schedule
-import taboolib.common.platform.function.getDataFolder
 import taboolib.common.platform.function.info
 import taboolib.module.configuration.Config
 import taboolib.module.configuration.ConfigFile
-import java.io.IOException
-import java.io.UncheckedIOException
-import java.nio.file.Files
 
 object ElysiaJob : Plugin() {
     @Config("config.yml")
     lateinit var config: ConfigFile
     lateinit var playerDataManager: PlayerDataManager
     lateinit var skillDataManager: SkillDataManager
+    lateinit var jobDataManager: JobDataManager
     lateinit var playerSkillDataManager: PlayerSkillDataManager
 
     // 项目使用TabooLib Start Jar 创建!
     override fun onEnable() {
         playerDataManager = PlayerDataManager()
         skillDataManager = SkillDataManager()
+        jobDataManager = JobDataManager()
         playerSkillDataManager = PlayerSkillDataManager()
-        playerDataManager.load()
+        playerDataManager.loadFile()
         skillDataManager.loadFile()
+        jobDataManager.loadFile()
+        Bukkit.getServer().pluginManager.getPlugin("ElysiaJob")
+            ?.let { Bukkit.getMessenger().registerIncomingPluginChannel(it, "ElysiaJob" ,ClientListener) }
         FileListener.load()
         submit()
     }

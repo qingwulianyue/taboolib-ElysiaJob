@@ -1,0 +1,13 @@
+示例职业:
+  name: 示例职业
+  mana: 100.0
+  mana_regen: 2.0
+  stamina: 50.0
+  stamina_regen: 1.0
+  skills:
+    - 示例技能1
+    - 示例技能2
+    - 示例技能3
+    - 示例技能4
+    - 示例技能5
+    - 示例技能6
