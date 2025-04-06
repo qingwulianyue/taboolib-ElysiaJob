@@ -9,12 +9,12 @@ import taboolib.module.kether.ScriptOptions
 
 object SkillManager {
     // 检查技能是否可以施法
-    fun checkSkillCastCondition(player: Player, skillId: String): Boolean {
+                                                                        fun checkSkillCastCondition(player: Player, skillId: String): Boolean {
         val uuid = player.uniqueId
         val skillData = ElysiaJob.skillDataManager.getSkillData(skillId)
         // 检查剩余冷却时间
-        if (ElysiaJob.playerSkillDataManager.getPlayerSkillCoolDown(uuid, skillId) > 0) {
-            message(player, MessageType.ON_COOLDOWN, arrayOf(skillData!!.name, ElysiaJob.playerSkillDataManager.getPlayerSkillCoolDown(uuid, skillId).toString()))
+        if (ElysiaJob.playerSkillDataManager.getPlayerSkillRemainCoolDown(uuid, skillId) > 0) {
+            message(player, MessageType.ON_COOLDOWN, arrayOf(skillData!!.name, ElysiaJob.playerSkillDataManager.getPlayerSkillRemainCoolDown(uuid, skillId).toString()))
             return false
         }
         // 检查魔力值

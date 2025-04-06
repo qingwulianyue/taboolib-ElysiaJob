@@ -5,5 +5,6 @@ enum class MessageType {
     ON_COOLDOWN,
     ON_MANA_NOT_ENOUGH,
     ON_STAMINA_NOT_ENOUGH,
-    ON_CAST
+    ON_CAST,
+    ON_SET_JOB
 }

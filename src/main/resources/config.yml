@@ -11,3 +11,4 @@ message:
   onManaNotEnough: "§c你没有足够的魔力！还需要 %mana% 点魔力！"
   onStaminaNotEnough: "§c你没有足够的体力！还需要 %stamina% 点体力！"
   onCast: "§a你使用了技能 %name%！"
+  onSetJob: "§a你切换了职业为 %job%！"

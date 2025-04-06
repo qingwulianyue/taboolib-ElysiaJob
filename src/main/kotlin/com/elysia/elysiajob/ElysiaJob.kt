@@ -4,7 +4,6 @@ import com.elysia.elysiajob.filemanager.*
 import com.elysia.elysiajob.listener.ClientListener
 import com.elysia.elysiajob.skill.PlayerSkillDataManager
 import org.bukkit.Bukkit
-import org.bukkit.plugin.java.JavaPlugin
 import taboolib.common.platform.Plugin
 import taboolib.common.platform.Schedule
 import taboolib.common.platform.function.info
@@ -30,12 +29,10 @@ object ElysiaJob : Plugin() {
         jobDataManager.loadFile()
         Bukkit.getServer().pluginManager.getPlugin("ElysiaJob")
             ?.let { Bukkit.getMessenger().registerIncomingPluginChannel(it, "ElysiaJob" ,ClientListener) }
-        FileListener.load()
         submit()
     }
     override fun onDisable() {
         playerDataManager.save()
-        FileListener.clear()
     }
     // 魔力值体力值回复任务
     @Schedule(period = 20, async = true)

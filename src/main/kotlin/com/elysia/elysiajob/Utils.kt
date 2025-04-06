@@ -30,5 +30,11 @@ fun message(player: Player, messageType: MessageType, vars: Array<String>){
                     .replace("%name%", vars[0])
             )
         }
+        MessageType.ON_SET_JOB -> {
+            player.sendMessage(
+                ElysiaJob.config["message.onSetJob"].toString()
+                    .replace("%job%", vars[0])
+            )
+        }
     }
 }

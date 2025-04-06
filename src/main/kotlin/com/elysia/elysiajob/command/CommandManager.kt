@@ -14,6 +14,7 @@ object CommandManager {
         execute<CommandSender> { sender, context, argument ->
             ElysiaJob.config.reload()
             ElysiaJob.skillDataManager.loadFile()
+            ElysiaJob.jobDataManager.loadFile()
             sender.sendMessage("重载成功")
         }
     }
