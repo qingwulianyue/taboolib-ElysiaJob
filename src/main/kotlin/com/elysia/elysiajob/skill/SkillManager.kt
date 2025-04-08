@@ -9,7 +9,7 @@ import taboolib.module.kether.ScriptOptions
 
 object SkillManager {
     // 检查技能是否可以施法
-                                                                        fun checkSkillCastCondition(player: Player, skillId: String): Boolean {
+    fun checkSkillCastCondition(player: Player, skillId: String): Boolean {
         val uuid = player.uniqueId
         val skillData = ElysiaJob.skillDataManager.getSkillData(skillId)
         // 检查剩余冷却时间
@@ -27,7 +27,14 @@ object SkillManager {
             message(player, MessageType.ON_STAMINA_NOT_ENOUGH, arrayOf((skillData.stamina - ElysiaJob.playerDataManager.getPlayerStamina(uuid)).toString()))
             return false
         }
-        return true
+        // 检查条件
+        val condition = KetherShell.eval(
+            skillData.condition,
+            ScriptOptions.new {
+                sender(player)
+            }
+        ).thenApply { it }
+        return condition.get() != false
     }
 
     // 释放技能

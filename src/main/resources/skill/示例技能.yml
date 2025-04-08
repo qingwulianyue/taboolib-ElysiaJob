@@ -3,5 +3,8 @@
   mana: 10
   stamina: 10
   cooldown: 10
+  point: 100
+  condition: |
+    check 1 == 1
   action: |
     tell 这是一个示例技能
