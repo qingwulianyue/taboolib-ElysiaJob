@@ -3,6 +3,7 @@ package com.elysia.elysiajob.hook
 import com.elysia.elysiajob.ElysiaJob
 import com.elysia.elysiajob.enums.SkillType
 import org.bukkit.entity.Player
+import taboolib.common.platform.function.info
 import taboolib.platform.compat.PlaceholderExpansion
 
 // papi变量
@@ -38,6 +39,16 @@ object PapiHook : PlaceholderExpansion{
         if (args.startsWith("skill_name_")) {
             val vars = args.substringAfter("skill_name_")
             return getSkillName(player, vars)
+        }
+        // 获取技能所需技能点
+        if (args.startsWith("skill_point_")) {
+            val vars = args.substringAfter("skill_point_")
+            return getSkillPoint(player, vars.split("_"))
+        }
+        // 获取技能剩余所需技能点
+        if (args.startsWith("skill_remain_point_")) {
+            val vars = args.substringAfter("skill_remain_point_")
+            return getSkillRemainPoint(player, vars.split("_"))
         }
         return ""
     }
@@ -104,5 +115,55 @@ object PapiHook : PlaceholderExpansion{
             else -> return ""
         }
         return ElysiaJob.skillDataManager.getSkillData(skillId)?.name ?: ""
+    }
+    private fun getSkillRemainPoint(player: Player, vars: List<String>): String {
+        var skillId = ""
+        when (vars[0]) {
+            // 获取指定id的技能技能点
+            "id" ->
+                skillId = vars[1]
+            // 获取指定按键的技能技能点
+            "key" -> {
+                if (ElysiaJob.playerDataManager.getPlayerJob(player.uniqueId) == null) return "0"
+                val jobData =
+                    ElysiaJob.jobDataManager.getJobData(ElysiaJob.playerDataManager.getPlayerJob(player.uniqueId)!!)
+                        ?: return "0"
+                skillId = when (vars[1]) {
+                    "1" -> jobData.skills[0]
+                    "2" -> jobData.skills[1]
+                    "3" -> jobData.skills[2]
+                    "4" -> jobData.skills[3]
+                    "5" -> jobData.skills[4]
+                    "6" -> jobData.skills[5]
+                    else -> return "0"
+                }
+            }
+        }
+        val point = ElysiaJob.skillDataManager.getSkillData(skillId)?.point ?: return "0"
+        return (point - ElysiaJob.playerSkillDataManager.getPlayerSkillPoint(player.uniqueId, skillId)).toString()
+    }
+    private fun getSkillPoint(player: Player, vars: List<String>): String {
+        when (vars[0]) {
+            // 获取指定id的技能技能点
+            "id" -> {
+                return ElysiaJob.skillDataManager.getSkillData(vars[1])?.point.toString()
+            }
+            // 获取指定按键的技能技能点
+            "key" -> {
+                if (ElysiaJob.playerDataManager.getPlayerJob(player.uniqueId) == null) return "0"
+                val jobData = ElysiaJob.jobDataManager.getJobData(ElysiaJob.playerDataManager.getPlayerJob(player.uniqueId)!!) ?: return "-1"
+                val skillId = when(vars[1]) {
+                    "1" -> jobData.skills[0]
+                    "2" -> jobData.skills[1]
+                    "3" -> jobData.skills[2]
+                    "4" -> jobData.skills[3]
+                    "5" -> jobData.skills[4]
+                    "6" -> jobData.skills[5]
+                    else -> return "0"
+                }
+                return ElysiaJob.skillDataManager.getSkillData(skillId)?.point.toString()
+            }
+        }
+        return "0"
     }
 }

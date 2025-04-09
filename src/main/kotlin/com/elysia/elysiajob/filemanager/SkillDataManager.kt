@@ -37,9 +37,10 @@ class SkillDataManager {
                     val mana = it.getDouble("$key.mana")
                     val stamina = it.getDouble("$key.stamina")
                     val cooldown = it.getDouble("$key.cooldown")
+                    val point = it.getInt("$key.point")
                     val condition = it.getString("$key.condition") ?: ""
                     val action = it.getString("$key.action") ?: ""
-                    skillDataMap[key] = SkillData(name, mana, stamina, cooldown, condition , action)
+                    skillDataMap[key] = SkillData(name, mana, stamina, cooldown, point , condition , action)
                 }
             )
         }

@@ -9,6 +9,7 @@ import taboolib.common.platform.command.*
 
 @CommandHeader("ElysiaJob",["ej"], permission = "server.admin")
 object CommandManager {
+    // 重载命令
     @CommandBody
     val reload = subCommand {
         execute<CommandSender> { sender, context, argument ->
@@ -18,6 +19,7 @@ object CommandManager {
             sender.sendMessage("重载成功")
         }
     }
+    // 魔力值相关命令
     @CommandBody
     val mana = subCommand {
         dynamic("type") {
@@ -50,6 +52,7 @@ object CommandManager {
             }
         }
     }
+    // 体力值相关命令
     @CommandBody
     val stamina = subCommand {
         dynamic("type") {
@@ -82,6 +85,7 @@ object CommandManager {
             }
         }
     }
+    // 技能相关命令
     @CommandBody
     val skill = subCommand {
         dynamic("type") {
@@ -97,6 +101,7 @@ object CommandManager {
                         return@suggestion ElysiaJob.skillDataManager.getSkillIdList()
                     }
                     execute<CommandSender> { sender, context, argument ->
+                        val type = context["type"]
                         val id = context["id"]
                         val name = context["name"]
                         val player = Bukkit.getPlayer(name)
@@ -104,18 +109,53 @@ object CommandManager {
                             sender.sendMessage("玩家不存在")
                             return@execute
                         }
-                        val skillData = ElysiaJob.skillDataManager.getSkillData(id)
-                        if (skillData == null) {
-                            sender.sendMessage("技能不存在")
-                            return@execute
+                        when (type){
+                            "cast" -> skillCast(player, id)
                         }
-                        if (SkillManager.checkSkillCastCondition(player, id))
-                            SkillManager.castSkill(player, id)
                     }
                 }
             }
         }
     }
+    // 技能点数相关命令
+    @CommandBody
+    val point = subCommand {
+        dynamic("type") {
+            suggestion<CommandSender>(uncheck = true) { sender, context ->
+                val result = mutableListOf("add", "take", "max", "regen", "set")
+                return@suggestion result
+            }
+            dynamic("player") {
+                suggestion<CommandSender>(uncheck = true) { sender, context ->
+                    return@suggestion Bukkit.getOnlinePlayers().map { it.name }
+                }
+                dynamic("id") {
+                    suggestion<CommandSender>(uncheck = false) { sender, context ->
+                        return@suggestion ElysiaJob.skillDataManager.getSkillIdList()
+                    }
+                    int("value") {
+                        execute<CommandSender> { sender, context, argument ->
+                            val type = context["type"]
+                            val player = Bukkit.getPlayer(context["player"])
+                            val id = context["id"]
+                            val value = context.double("value")
+                            if (player == null){
+                                sender.sendMessage("玩家不存在")
+                                return@execute
+                            }
+                            when (type){
+                                "add" -> ElysiaJob.playerSkillDataManager.addPlayerSkillPoint(player.uniqueId, id, value.toInt())
+                                "take" -> ElysiaJob.playerSkillDataManager.takePlayerSkillPoint(player.uniqueId, id, value.toInt())
+                                "regen" -> ElysiaJob.playerSkillDataManager.setPlayerSkillPointRegenRate(player.uniqueId, id, value.toInt())
+                                "set" -> ElysiaJob.playerSkillDataManager.setPlayerSkillPoint(player.uniqueId, id, value.toInt())
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    // 职业相关命令
     @CommandBody
     val job = subCommand {
         dynamic("type") {
@@ -200,5 +240,12 @@ object CommandManager {
             ElysiaJob.playerDataManager.setPlayerStamina(player.uniqueId,
                 value.coerceAtMost(ElysiaJob.playerDataManager.getPlayerMaxStamina(player.uniqueId))
             )
+    }
+    private fun skillCast(player: Player, skillId: String){
+        val skillData = ElysiaJob.skillDataManager.getSkillData(skillId)
+        if (skillData == null)
+            player.sendMessage("技能不存在")
+        if (SkillManager.checkSkillCastCondition(player, skillId))
+            SkillManager.castSkill(player, skillId)
     }
 }

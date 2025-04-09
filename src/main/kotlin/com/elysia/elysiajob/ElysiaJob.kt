@@ -39,18 +39,23 @@ object ElysiaJob : Plugin() {
     fun manaRegenerationTask(){
         for (player in Bukkit.getOnlinePlayers()){
             val uuid = player.uniqueId
+            // 魔力值回复
             if (playerDataManager.getPlayerMana(uuid) < playerDataManager.getPlayerMaxMana(uuid))
                 playerDataManager.setPlayerMana(uuid,
                     (playerDataManager.getPlayerMana(uuid) + playerDataManager.getPlayerManaRegen(uuid)).coerceAtMost(
                         playerDataManager.getPlayerMaxMana(uuid)
                     )
                 )
+            // 体力值回复
             if (playerDataManager.getPlayerStamina(uuid) < playerDataManager.getPlayerMaxStamina(uuid))
                 playerDataManager.setPlayerStamina(uuid,
                     (playerDataManager.getPlayerStamina(uuid) + playerDataManager.getPlayerStaminaRegen(uuid)).coerceAtMost(
                         playerDataManager.getPlayerMaxStamina(uuid)
                     )
                 )
+            // 技能点数恢复
+            if (playerSkillDataManager.getNeedRegenPlayerList().containsKey(uuid))
+                playerSkillDataManager.skillPointRegen(uuid)
         }
     }
     // 自动保存
