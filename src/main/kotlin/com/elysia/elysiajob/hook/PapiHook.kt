@@ -3,7 +3,8 @@ package com.elysia.elysiajob.hook
 import com.elysia.elysiajob.ElysiaJob
 import com.elysia.elysiajob.enums.SkillType
 import org.bukkit.entity.Player
-import taboolib.common.platform.function.info
+import taboolib.module.kether.KetherShell
+import taboolib.module.kether.ScriptOptions
 import taboolib.platform.compat.PlaceholderExpansion
 
 // papi变量
@@ -25,6 +26,11 @@ object PapiHook : PlaceholderExpansion{
         if (args == "stamina_regen") return ElysiaJob.playerDataManager.getPlayerStaminaRegen(player.uniqueId).toString()
         // 获取玩家职业
         if (args == "job") return ElysiaJob.playerDataManager.getPlayerJob(player.uniqueId) ?: ""
+        // 获取玩家按键
+        if (args.startsWith("key_")){
+            val vars = args.split("_")
+            return getPlayerKey(player, vars[1])
+        }
         // 获取技能剩余冷却时间
         if (args.startsWith("skill_remain_cooldown_")) {
             val vars = args.substringAfter("skill_remain_cooldown_")
@@ -49,6 +55,11 @@ object PapiHook : PlaceholderExpansion{
         if (args.startsWith("skill_remain_point_")) {
             val vars = args.substringAfter("skill_remain_point_")
             return getSkillRemainPoint(player, vars.split("_"))
+        }
+        // 获取技能是否满足条件
+        if (args.startsWith("skill_condition_")) {
+            val vars = args.substringAfter("skill_condition_")
+            return getSkillCondition(player, vars.split("_"))
         }
         return ""
     }
@@ -165,5 +176,50 @@ object PapiHook : PlaceholderExpansion{
             }
         }
         return "0"
+    }
+    private fun getSkillCondition(player: Player, vars: List<String>): String {
+        var skillId = ""
+        when (vars[0]) {
+            // 获取指定id的技能技能点
+            "id" ->
+                skillId = vars[1]
+            // 获取指定按键的技能技能点
+            "key" -> {
+                if (ElysiaJob.playerDataManager.getPlayerJob(player.uniqueId) == null) return "true"
+                val jobData =
+                    ElysiaJob.jobDataManager.getJobData(ElysiaJob.playerDataManager.getPlayerJob(player.uniqueId)!!)
+                        ?: return "0"
+                skillId = when (vars[1]) {
+                    "1" -> jobData.skills[0]
+                    "2" -> jobData.skills[1]
+                    "3" -> jobData.skills[2]
+                    "4" -> jobData.skills[3]
+                    "5" -> jobData.skills[4]
+                    "6" -> jobData.skills[5]
+                    else -> return "0"
+                }
+            }
+        }
+        val skillData = ElysiaJob.skillDataManager.getSkillData(skillId) ?: return "true"
+        if (skillData.condition.isEmpty()) return "true"
+        val condition = KetherShell.eval(
+            skillData.condition,
+            ScriptOptions.new {
+                sender(player)
+            }
+        ).thenApply { it }
+        return (condition.get() != false).toString()
+    }
+    private fun getPlayerKey(player: Player, vars: String): String {
+        val skillType = when (vars) {
+            "1" -> SkillType.SKILL1
+            "2" -> SkillType.SKILL2
+            "3" -> SkillType.SKILL3
+            "4" -> SkillType.SKILL4
+            "5" -> SkillType.SKILL5
+            "6" -> SkillType.SKILL6
+            else -> return ""
+        }
+        return ElysiaJob.playerDataManager.getPlayerKey(player.uniqueId, skillType)
     }
 }

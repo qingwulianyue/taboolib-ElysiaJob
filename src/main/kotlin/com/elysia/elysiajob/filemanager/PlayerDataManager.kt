@@ -1,12 +1,11 @@
 package com.elysia.elysiajob.filemanager
 
 import com.elysia.elysiajob.ElysiaJob
+import com.elysia.elysiajob.enums.SkillType
 import org.bukkit.configuration.file.YamlConfiguration
 import taboolib.common.io.newFolder
 import taboolib.common.platform.function.getDataFolder
-import taboolib.common.platform.function.releaseResourceFile
 import taboolib.module.configuration.Configuration
-import java.io.File
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 
@@ -26,6 +25,8 @@ class PlayerDataManager {
     private val playerMaxStamina = ConcurrentHashMap<UUID, Double>()
     // 玩家职业数据
     private val playerJob = ConcurrentHashMap<UUID, String>()
+    // 玩家按键数据
+    private val playerKey = ConcurrentHashMap<UUID, ConcurrentHashMap<SkillType, String>>()
     // 配置文件收集
     private val read = ArrayList<Configuration>()
     // 获取玩家魔力值
@@ -84,6 +85,10 @@ class PlayerDataManager {
     fun setPlayerJob(uuid: UUID, job: String) {
         playerJob[uuid] = job
     }
+    // 移除玩家职业
+    fun removePlayerJob(uuid: UUID) {
+        playerJob.remove(uuid)
+    }
     // 扣除玩家魔力值
     fun takePlayerMana(uuid: UUID, mana: Double){
         // 数据检查
@@ -126,6 +131,26 @@ class PlayerDataManager {
         else
             playerStamina[uuid] = playerMaxStamina[uuid]!!
     }
+    // 获取玩家按键数据
+    fun getPlayerKey(uuid: UUID, skillType: SkillType): String {
+        if (!playerKey.containsKey(uuid)) initPlayerKey(uuid)
+        return playerKey[uuid]!![skillType]!!
+    }
+    // 设置玩家按键数据
+    fun setPlayerKey(uuid: UUID, skillType: SkillType, key: String){
+        if (!playerKey.contains(uuid)) initPlayerKey(uuid)
+        playerKey[uuid]!![skillType] = key
+    }
+    private fun initPlayerKey(uuid: UUID){
+        val keys = ConcurrentHashMap<SkillType, String>()
+        keys[SkillType.SKILL1] = "Z"
+        keys[SkillType.SKILL2] = "X"
+        keys[SkillType.SKILL3] = "R"
+        keys[SkillType.SKILL4] = "V"
+        keys[SkillType.SKILL5] = "B"
+        keys[SkillType.SKILL6] = "LCONTROL"
+        playerKey[uuid] = keys
+    }
     // 保存玩家数据
     fun save(){
         for (uuid in playerMana.keys){
@@ -137,6 +162,9 @@ class PlayerDataManager {
             yamlConfiguration.set("stamina_regen", playerStaminaRegen[uuid])
             yamlConfiguration.set("max_stamina", playerMaxStamina[uuid])
             yamlConfiguration.set("job", playerJob[uuid])
+            for (skillType in SkillType.entries){
+                yamlConfiguration.set(skillType.name, playerKey[uuid]!![skillType])
+            }
             try {
                 yamlConfiguration.save(playerDataPath.toFile())
             } catch (e: Exception){
@@ -167,6 +195,10 @@ class PlayerDataManager {
             playerStaminaRegen[uuid] = it.getDouble("stamina_regen")
             playerMaxStamina[uuid] = it.getDouble("max_stamina")
             playerJob[uuid] = it.getString("job") ?: ""
+            val keys = ConcurrentHashMap<SkillType, String>()
+            for (skillType in SkillType.entries)
+                keys[skillType] = it.getString(skillType.name) ?: ""
+            playerKey[uuid] = keys
         }
     }
 }

@@ -1,9 +1,8 @@
 package com.elysia.elysiajob.ketherexpand
 
 import io.lumine.xikage.mythicmobs.MythicMobs
+import io.lumine.xikage.mythicmobs.adapters.bukkit.BukkitAdapter
 import org.bukkit.Bukkit
-import org.bukkit.entity.Entity
-import taboolib.common.platform.function.info
 import taboolib.library.kether.ParsedAction
 import taboolib.module.kether.ScriptAction
 import taboolib.module.kether.ScriptFrame
@@ -16,11 +15,9 @@ class MythicMobsKether(val key: ParsedAction<*>, val value: ParsedAction<*>? = n
         val type = frame.newFrame(key).run<String>().get()
         val name = value?.let { frame.newFrame(it).run<String>().get() } ?: return CompletableFuture.completedFuture(null)
         val player = Bukkit.getEntity(frame.player().uniqueId) ?: return CompletableFuture.completedFuture(null)
-        info(type)
-        info(name)
-        info(player)
         when (type) {
             "cast" -> MythicMobs.inst().apiHelper.castSkill(player, name)
+            "aura" -> return CompletableFuture.completedFuture(MythicMobs.inst().skillManager.auraManager.getHasAura(BukkitAdapter.adapt(player), name))
         }
         return CompletableFuture.completedFuture(null)
     }

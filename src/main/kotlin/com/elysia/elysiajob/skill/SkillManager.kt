@@ -28,6 +28,7 @@ object SkillManager {
             return false
         }
         // 检查条件
+        if (skillData.condition.isEmpty()) return true
         val condition = KetherShell.eval(
             skillData.condition,
             ScriptOptions.new {

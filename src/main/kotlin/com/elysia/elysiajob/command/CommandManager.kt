@@ -160,11 +160,20 @@ object CommandManager {
     val job = subCommand {
         dynamic("type") {
             suggestion<CommandSender>(uncheck = false) { sender, context ->
-                return@suggestion listOf("set")
+                return@suggestion listOf("set", "clear")
             }
             dynamic("name"){
                 suggestion<CommandSender>(uncheck = false) { sender, context ->
                     return@suggestion Bukkit.getOnlinePlayers().map { it.name }
+                }
+                execute<CommandSender> { sender, context, argument ->
+                    val name = context["name"]
+                    val player = Bukkit.getPlayer(name)
+                    if (player == null) {
+                        sender.sendMessage("玩家不存在")
+                        return@execute
+                    }
+                    ElysiaJob.playerDataManager.removePlayerJob(player.uniqueId)
                 }
                 dynamic("id"){
                     suggestion<CommandSender>(uncheck = false) { sender, context ->
