@@ -8,3 +8,10 @@
     check 1 == 1
   action: |
     tell 这是一个示例技能
+  listener:
+    player_attack:
+      time: 10000
+      condition: |
+        check 1 == 1
+      action: |
+        tell 发起攻击

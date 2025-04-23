@@ -1,6 +1,7 @@
 package com.elysia.elysiajob.filemanager
 
 import com.elysia.elysiajob.filemanager.data.SkillData
+import com.elysia.elysiajob.filemanager.data.SkillListenerData
 import taboolib.common.io.newFolder
 import taboolib.common.platform.function.getDataFolder
 import taboolib.common.platform.function.releaseResourceFile
@@ -31,8 +32,10 @@ class SkillDataManager {
     // 加载数据
     private fun loadConfiguration(){
         read.forEach {
+            // 遍历一级键
             it.getKeys(false).forEach(
                 fun(key: String) {
+                    // 加载常规数据
                     val name = it.getString("$key.name") ?: ""
                     val mana = it.getDouble("$key.mana")
                     val stamina = it.getDouble("$key.stamina")
@@ -40,7 +43,19 @@ class SkillDataManager {
                     val point = it.getInt("$key.point")
                     val condition = it.getString("$key.condition") ?: ""
                     val action = it.getString("$key.action") ?: ""
-                    skillDataMap[key] = SkillData(name, mana, stamina, cooldown, point , condition , action)
+                    // 获取监听器
+                    val listeners = mutableListOf<SkillListenerData>()
+                    // 获取监听器键
+                    val listenerSection = it.getConfigurationSection("$key.listener")
+                    // 遍历监听器配置
+                    listenerSection?.getKeys(false)?.forEach { listenerKey ->
+                        val listenerTime = listenerSection.getDouble("$listenerKey.time")
+                        val listenerCondition = listenerSection.getString("$listenerKey.condition") ?: ""
+                        val listenerAction = listenerSection.getString("$listenerKey.action") ?: ""
+                        val skillListenerData = SkillListenerData(listenerKey, listenerTime, listenerCondition, listenerAction)
+                        listeners.add(skillListenerData)
+                    }
+                    skillDataMap[key] = SkillData(name, mana, stamina, cooldown, point , condition , action, listeners)
                 }
             )
         }

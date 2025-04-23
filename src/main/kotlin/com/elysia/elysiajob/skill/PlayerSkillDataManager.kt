@@ -1,7 +1,9 @@
 package com.elysia.elysiajob.skill
 
 import com.elysia.elysiajob.ElysiaJob
+import com.elysia.elysiajob.enums.SkillListenerType
 import com.elysia.elysiajob.enums.SkillType
+import com.elysia.elysiajob.filemanager.data.SkillListenerData
 import java.time.Duration
 import java.time.LocalDateTime
 import java.util.*
@@ -17,6 +19,8 @@ class PlayerSkillDataManager {
     private val skillPointRegenRate = ConcurrentHashMap<UUID, ConcurrentHashMap<String, Int>>()
     // 需要恢复技能点数的玩家
     private val needRegenPlayer = ConcurrentHashMap<UUID, MutableList<String>>()
+    // 玩家技能监听器
+    private val playerSkillListenerMap = ConcurrentHashMap<UUID, ConcurrentHashMap<SkillListenerData, Long>>()
     // 设置玩家技能释放时间
     fun setPlayerSkillCastTime(uuid: UUID, skillId: String) {
         skillCooldownDataMap.computeIfAbsent(uuid) { ConcurrentHashMap() }[skillId] = LocalDateTime.now()
@@ -153,5 +157,33 @@ class PlayerSkillDataManager {
                 addPlayerSkillPoint(uuid, skillId, rate)
             }
         }
+    }
+    // 新增玩家的技能监听器
+    fun addPlayerListener(uuid: UUID, skillListenerData: List<SkillListenerData>, time: Long){
+        val skillListener = playerSkillListenerMap.computeIfAbsent(uuid) { ConcurrentHashMap() }
+        skillListenerData.forEach {
+            skillListener[it] = System.currentTimeMillis() + time
+        }
+        playerSkillListenerMap[uuid] = skillListener
+    }
+    // 检查玩家的技能监听器
+    fun checkPlayerListener(uuid: UUID, skillListenerType: SkillListenerType): SkillListenerData? {
+        if (!playerSkillListenerMap.containsKey(uuid)) return null
+        val skillListener = playerSkillListenerMap[uuid]
+        if (skillListener.isNullOrEmpty()) return null
+        // 遍历技能监听器
+        skillListener.forEach { (skillListenerData, time) ->
+            // 如果技能监听器类型匹配，则判断是否已经到达时间
+            if (skillListenerData.skillListenerType == skillListenerType) {
+                // 如果已经超时，则返回null并从技能监听器中移除该监听器
+                if (System.currentTimeMillis() > time) {
+                    skillListener.remove(skillListenerData)
+                    return null
+                }
+                // 如果没有超时，则返回技能监听器
+                return skillListenerData
+            }
+        }
+        return null
     }
 }

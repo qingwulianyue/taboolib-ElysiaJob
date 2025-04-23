@@ -54,5 +54,10 @@ object SkillManager {
         ElysiaJob.playerDataManager.takePlayerStamina(uuid, skillData.stamina)
         ElysiaJob.playerSkillDataManager.setPlayerSkillCastTime(uuid, skillId)
         message(player, MessageType.ON_CAST, arrayOf(skillData.name))
+        // 若有技能点消耗，则扣除技能点
+        if (skillData.point > 0) ElysiaJob.playerSkillDataManager.takePlayerSkillPoint(uuid, skillId, skillData.point)
+        // 若有事件监听，则执行监听
+        if (skillData.listener.isEmpty()) return
+        for (listener in skillData.listener) ElysiaJob.playerSkillDataManager.addPlayerListener(uuid, skillData.listener, listener.time.toLong())
     }
 }
